@@ -237,7 +237,13 @@ class MyScene: SKScene {
     }
 
     func initExplodeTextures() {
-        explodeTextures = TextureHelper.getTexturesWithSpriteSheetNamed("explode", withinNode: nil, sourceRect: CGRect(x: 0, y: 0, width: 500, height: 500), andRowNumberOfSprites: 1, andColNumberOfSprites: 5) ?? []
+        explodeTextures = TextureHelper.getTextures(withSpriteSheetNamed: "explode",
+                                                    sourceRect: CGRect(x: 0,
+                                                                       y: 0,
+                                                                       width: 500,
+                                                                       height: 500),
+                                                    rowNumberOfSprites: 1,
+                                                    colNumberOfSprites: 5) ?? []
     }
 
     func skill() {
@@ -520,10 +526,10 @@ class MyScene: SKScene {
     }
 
     func getTimeTexture(time: Int) -> SKTexture? {
-        guard time >= 0 && time < TextureHelper.timeTextures.count else {
-            return TextureHelper.timeTextures.first // Default or handle error
+        guard time >= 0 && time < TextureHelper.timeTextures().count else {
+            return TextureHelper.timeTextures().first // Default or handle error
         }
-        return TextureHelper.timeTextures[time]
+        return TextureHelper.timeTextures()[time]
     }
 
 

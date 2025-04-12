@@ -14,11 +14,11 @@ class TextureHelper {
     private static var hand2Textures: [SKTexture] = []
     private static var hand3Textures: [SKTexture] = []
 
-    private static var cat1Textures: [SKTexture] = []
-    private static var cat2Textures: [SKTexture] = []
-    private static var cat3Textures: [SKTexture] = []
-    private static var cat4Textures: [SKTexture] = []
-    private static var cat5Textures: [SKTexture] = []
+    static var cat1Textures: [SKTexture] = []
+    static var cat2Textures: [SKTexture] = []
+    static var cat3Textures: [SKTexture] = []
+    static var cat4Textures: [SKTexture] = []
+    static var cat5Textures: [SKTexture] = []
 
     private static var hamsterInjure: SKTexture = SKTexture(imageNamed: "hamster_injure")
     private static var bgTexturesArray: [SKTexture] = (1...15).map { SKTexture(imageNamed: "bg\($0 < 10 ? "0\($0)" : "\($0)").jpg") }
@@ -101,6 +101,76 @@ class TextureHelper {
     static func hamsterInjureTexture() -> SKTexture? { hamsterInjure }
     static func timeTextures() -> [SKTexture] { timeTexturesArray }
     static func timeImages() -> [UIImage] { timeImagesArray }
+}
+
+extension TextureHelper {
+    /**
+     Extracts an array of textures from a sprite sheet based on given dimensions and layout.
+
+     - Parameters:
+       - spriteSheet: The name of the image file containing the sprite sheet.
+       - sourceRect: The starting rectangle (CGRect) within the sprite sheet to begin cutting textures.
+                     This should be in the coordinate system of the original image (pixels).
+       - rowNumberOfSprites: The number of rows of sprites in the sprite sheet.
+       - colNumberOfSprites: The number of columns of sprites in the sprite sheet.
+     - Returns: An array of `SKTexture` objects representing the individual sprites.
+     */
+    static func getTextures(
+        withSpriteSheetNamed spriteSheet: String,
+        sourceRect: CGRect,
+        rowNumberOfSprites: Int,
+        colNumberOfSprites: Int
+    ) -> [SKTexture] {
+
+        var animatingFrames: [SKTexture] = []
+
+        let ssTexture = SKTexture(imageNamed: spriteSheet)
+        // Makes the sprite (ssTexture) stay pixelated:
+        ssTexture.filteringMode = .nearest
+
+        var currentX = sourceRect.origin.x
+        var currentY = sourceRect.origin.y
+        let spriteWidth = sourceRect.size.width
+        let spriteHeight = sourceRect.size.height
+
+        // IMPORTANT: textureWithRect: uses a normalized coordinate system (0.0 to 1.0),
+        // where 1.0 represents 100% of the texture's width or height.
+        // This is why division by the original texture's size is necessary for the cutter rect.
+
+        let normalizedSpriteWidth = spriteWidth / ssTexture.size().width
+        let normalizedSpriteHeight = spriteHeight / ssTexture.size().height
+        
+        let normalizedStartX = currentX / ssTexture.size().width
+        var normalizedCurrentY = currentY / ssTexture.size().height
+        
+        // Store the initial normalized X to reset for each row
+        let initialNormalizedX = normalizedStartX
+
+        for i in 0..<rowNumberOfSprites * colNumberOfSprites {
+            let cutter = CGRect(
+                x: currentX / ssTexture.size().width, // Convert pixel x to normalized x
+                y: currentY / ssTexture.size().height, // Convert pixel y to normalized y
+                width: normalizedSpriteWidth,
+                height: normalizedSpriteHeight
+            )
+            
+            let tempTexture = SKTexture(rect: cutter, in: ssTexture)
+            animatingFrames.append(tempTexture)
+
+            // Move to the next column's starting X
+            currentX += spriteWidth
+
+            // Check if we've completed a row
+            if (i + 1) % colNumberOfSprites == 0 {
+                // Reset X to the beginning of the source rectangle
+                currentX = sourceRect.origin.x
+                // Move Y down to the next row
+                currentY += spriteHeight
+            }
+        }
+        
+        return animatingFrames
+    }
 }
 
 private extension Array {
