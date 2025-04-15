@@ -23,25 +23,18 @@ class TextureHelper {
     private static var hamsterInjure: SKTexture = SKTexture(imageNamed: "hamster_injure")
     private static var bgTexturesArray: [SKTexture] = (1...15).map { SKTexture(imageNamed: "bg\($0 < 10 ? "0\($0)" : "\($0)").jpg") }
     private static var timeTexturesArray: [SKTexture] = [
-        SKTexture(imageNamed: "score0"),
-        SKTexture(imageNamed: "score1"),
-        SKTexture(imageNamed: "score2"),
-        SKTexture(imageNamed: "score3"),
-        SKTexture(imageNamed: "score4"),
-        SKTexture(imageNamed: "score5"),
-        SKTexture(imageNamed: "score6"),
-        SKTexture(imageNamed: "score7"),
-        SKTexture(imageNamed: "score8"),
-        SKTexture(imageNamed: "score9"),
+        SKTexture(imageNamed: "s0"),
+        SKTexture(imageNamed: "s1"),
+        SKTexture(imageNamed: "s2"),
+        SKTexture(imageNamed: "s3"),
+        SKTexture(imageNamed: "s4"),
+        SKTexture(imageNamed: "s5"),
+        SKTexture(imageNamed: "s6"),
+        SKTexture(imageNamed: "s7"),
+        SKTexture(imageNamed: "s8"),
+        SKTexture(imageNamed: "s9"),
         SKTexture(imageNamed: "dot")
     ]
-
-    private static var timeImagesArray: [UIImage] = [
-        UIImage(named: "score0"), UIImage(named: "score1"), UIImage(named: "score2"),
-        UIImage(named: "score3"), UIImage(named: "score4"), UIImage(named: "score5"),
-        UIImage(named: "score6"), UIImage(named: "score7"), UIImage(named: "score8"),
-        UIImage(named: "score9")
-    ].compactMap { $0 }
 
     static func initCatTextures() {
         cat1Textures = (1...4).map { SKTexture(imageNamed: "cat01_\($0)") }
@@ -100,7 +93,6 @@ class TextureHelper {
     static func backgrounds() -> [SKTexture] { bgTexturesArray }
     static func hamsterInjureTexture() -> SKTexture? { hamsterInjure }
     static func timeTextures() -> [SKTexture] { timeTexturesArray }
-    static func timeImages() -> [UIImage] { timeImagesArray }
 }
 
 extension TextureHelper {
