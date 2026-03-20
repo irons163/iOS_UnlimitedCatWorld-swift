@@ -10,10 +10,15 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        Appirater.setAppId("1000573724")
+        Appirater.setDaysUntilPrompt(1)
+        Appirater.setUsesUntilPrompt(5)
+        Appirater.setSignificantEventsUntilPrompt(-1)
+        Appirater.setTimeBeforeReminding(2)
+        Appirater.setDebug(false)
+        Appirater.appLaunched(true)
+
         return true
     }
 
@@ -31,6 +36,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
 
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        let gameScore = UserDefaults.standard.integer(forKey: "gameScore")
+        GameCenterUtil.shared.reportScore(Int64(gameScore), forCategory: "com.irons.UnlimitedCatWorld")
+    }
 
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        Appirater.appEnteredForeground(true)
+    }
+
+    func applicationWillTerminate(_ application: UIApplication) {
+        let gameScore = UserDefaults.standard.integer(forKey: "gameScore")
+        GameCenterUtil.shared.reportScore(Int64(gameScore), forCategory: "com.irons.UnlimitedCatWorld")
+    }
 }
-

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4AB402C52F6D465B00ACE75A /* AppiraterDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB402C42F6D465B00ACE75A /* AppiraterDelegate.swift */; };
+		4AB402C72F6D46B400ACE75A /* Appirater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB402C62F6D46B400ACE75A /* Appirater.swift */; };
 		4AF135DB2DC642CE0059A0E1 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 4AF135DA2DC642CE0059A0E1 /* GoogleMobileAds */; };
 /* End PBXBuildFile section */
 
@@ -31,6 +33,8 @@
 		4A1AAAF62DA67BA50015C823 /* iOS_UnlimitedCatWorld-swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS_UnlimitedCatWorld-swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A1AAB0C2DA67BA60015C823 /* iOS_UnlimitedCatWorld-swiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS_UnlimitedCatWorld-swiftTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A1AAB162DA67BA60015C823 /* iOS_UnlimitedCatWorld-swiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "iOS_UnlimitedCatWorld-swiftUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4AB402C42F6D465B00ACE75A /* AppiraterDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppiraterDelegate.swift; sourceTree = "<group>"; };
+		4AB402C62F6D46B400ACE75A /* Appirater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Appirater.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -97,6 +101,8 @@
 				4A1AAB0F2DA67BA60015C823 /* iOS_UnlimitedCatWorld-swiftTests */,
 				4A1AAB192DA67BA60015C823 /* iOS_UnlimitedCatWorld-swiftUITests */,
 				4A1AAAF72DA67BA50015C823 /* Products */,
+				4AB402C42F6D465B00ACE75A /* AppiraterDelegate.swift */,
+				4AB402C62F6D46B400ACE75A /* Appirater.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -211,6 +217,37 @@
 			knownRegions = (
 				en,
 				Base,
+				de,
+				he,
+				ar,
+				el,
+				"zh-Hans",
+				ja,
+				uk,
+				nb,
+				es,
+				da,
+				it,
+				sk,
+				ms,
+				sv,
+				cs,
+				ko,
+				"zh-Hant",
+				hu,
+				tr,
+				pl,
+				"pt-BR",
+				vi,
+				ru,
+				fr,
+				fi,
+				id,
+				nl,
+				th,
+				pt,
+				ro,
+				ca,
 			);
 			mainGroup = 4A1AAAED2DA67BA50015C823;
 			minimizedProjectReferenceProxies = 1;
@@ -258,6 +295,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AB402C52F6D465B00ACE75A /* AppiraterDelegate.swift in Sources */,
+				4AB402C72F6D46B400ACE75A /* Appirater.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

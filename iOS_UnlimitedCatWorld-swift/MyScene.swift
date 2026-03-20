@@ -17,6 +17,8 @@ let UnlockTouchMultiClear: Int64 = 1000
 let UnlockZoneClear: Int64 = 100000
 let UnlockBladeClear: Int64 = 10000
 
+let DebugUnlockAllModes = true
+
 class MyScene: SKScene {
 
     var backgroundNode: SKSpriteNode!
@@ -52,8 +54,6 @@ class MyScene: SKScene {
     private var gamePoint10MNode: SKSpriteNode?
     private var gamePoint100MNode: SKSpriteNode?
     private var gamePoint1BNode: SKSpriteNode?
-    private var gamePoint10BNode: SKSpriteNode?
-
     private var blade: SKBlade?
     private var delta: CGPoint = .zero
 
@@ -64,12 +64,12 @@ class MyScene: SKScene {
     override init(size: CGSize) {
         super.init(size: size)
 
+        TextureHelper.initTextures()
         TextureHelper.initCatTextures()
 
-        let tex1 = SKTexture(imageNamed: "btn_Music-hd")
-        let tex2 = SKTexture(imageNamed: "btn_Music_Select-hd")
-        musicBtnTextures.append(tex1)
-        musicBtnTextures.append(tex2)
+        let tex1 = SKTexture(imageNamed: "btn_Music-hd.png")
+        let tex2 = SKTexture(imageNamed: "btn_Music_Select-hd.png")
+        musicBtnTextures = [tex1, tex2]
 
         bugs = []
         explodePool = []
@@ -181,7 +181,7 @@ class MyScene: SKScene {
 
         initExplodeTextures()
 
-        musicBtn = SKSpriteNode(imageNamed: "btn_Music-hd")
+        musicBtn = SKSpriteNode(imageNamed: "btn_Music-hd.png")
         musicBtn?.size = CGSize(width: 42, height: 42)
         musicBtn?.anchorPoint = CGPoint(x: 0, y: 0)
         if let btn = musicBtn {
@@ -268,9 +268,8 @@ class MyScene: SKScene {
 
         for i in (0..<bugs.count).reversed() {
              let bug = bugs[i]
-             if zoneFrame.contains(bug.calculateAccumulatedFrame()) {
+             if bug.calculateAccumulatedFrame().contains(zoneFrame) {
                  doKill(targetBug: bug)
-                 // Since doKill removes the bug, no need to increment i
              }
         }
     }
@@ -382,18 +381,17 @@ class MyScene: SKScene {
 
         if clearType == BladeClear {
             presentBladeAtPosition(location)
-             isTouchOnBugOrButton = true // Blade interaction handled in update
         } else if clearType == ZoneClear {
-             if let zoneNode = zone {
-                  zoneNode.position = location
-                  isTouchOnBugOrButton = true // Zone interaction handled in update or here
-                  for i in (0..<bugs.count).reversed() {
-                       let bug = bugs[i]
-                       if zoneNode.calculateAccumulatedFrame().contains(bug.position) {
-                            doKill(targetBug: bug)
-                       }
-                  }
-             }
+            if let zoneNode = zone {
+                zoneNode.position = location
+                for i in (0..<bugs.count).reversed() {
+                    let bug = bugs[i]
+                    if zoneNode.calculateAccumulatedFrame().contains(bug.position) {
+                        isTouchOnBugOrButton = true
+                        doKill(targetBug: bug)
+                    }
+                }
+            }
         } else if clearType == TouchMultiClear {
             for i in (0..<bugs.count).reversed() {
                  let bug = bugs[i]
@@ -413,34 +411,30 @@ class MyScene: SKScene {
             }
         }
 
-        if !isTouchOnBugOrButton {
-             if let btn = rankBtn, btn.calculateAccumulatedFrame().contains(location) {
-                  isTouchOnBugOrButton = true
-                  self.gameDelegate?.showRankView()
-             } else if let btn = musicBtn, btn.calculateAccumulatedFrame().contains(location) {
-                  isTouchOnBugOrButton = true
-                  if MyUtils.isBackgroundMusicPlayerPlaying() {
-                       MyUtils.backgroundMusicPlayerPause()
-                       if musicBtnTextures.count > 1 { btn.texture = musicBtnTextures[1] }
-                       UserDefaults.standard.set(false, forKey: "isPlayMusic")
-                  } else {
-                       MyUtils.backgroundMusicPlayerPlay()
-                       if !musicBtnTextures.isEmpty { btn.texture = musicBtnTextures[0] }
-                       UserDefaults.standard.set(true, forKey: "isPlayMusic")
-                  }
-             } else if let btn = menuBtn, btn.calculateAccumulatedFrame().contains(location) {
-                 isTouchOnBugOrButton = true
-                 self.gameDelegate?.showGameMenu()
-             }
+        if let btn = rankBtn, btn.calculateAccumulatedFrame().contains(location), !isTouchOnBugOrButton {
+            self.gameDelegate?.showRankView()
+        } else if let btn = musicBtn, btn.calculateAccumulatedFrame().contains(location) {
+            if MyUtils.isBackgroundMusicPlayerPlaying() {
+                MyUtils.backgroundMusicPlayerPause()
+                if musicBtnTextures.count > 1 { btn.texture = musicBtnTextures[1] }
+                UserDefaults.standard.set(false, forKey: "isPlayMusic")
+            } else {
+                MyUtils.ensureBackgroundMusicPlayer()
+                MyUtils.backgroundMusicPlayerPlay()
+                if !musicBtnTextures.isEmpty { btn.texture = musicBtnTextures[0] }
+                UserDefaults.standard.set(true, forKey: "isPlayMusic")
+            }
+        } else if let btn = menuBtn, btn.calculateAccumulatedFrame().contains(location), !isTouchOnBugOrButton {
+            self.gameDelegate?.showGameMenu()
         }
     }
 
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-         guard let touch = touches.first, blade != nil else { return }
-         let currentPoint = touch.location(in: self)
-         let previousPoint = touch.previousLocation(in: self)
-         delta = CGPoint(x: currentPoint.x - previousPoint.x, y: currentPoint.y - previousPoint.y)
+        guard let touch = touches.first else { return }
+        let currentPoint = touch.location(in: self)
+        let previousPoint = touch.previousLocation(in: self)
+        delta = CGPoint(x: currentPoint.x - previousPoint.x, y: currentPoint.y - previousPoint.y)
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -499,7 +493,8 @@ class MyScene: SKScene {
     func changeGamePoint() {
         gameScore += 1
 
-        UserDefaults.standard.set(Int(gameScore), forKey: "gameScore") // Store as Int if it fits, otherwise needs different handling
+        UserDefaults.standard.set(Int(gameScore), forKey: "gameScore")
+        UserDefaults.standard.synchronize()
 
         gamePointSingleNode?.texture = self.getTimeTexture(time: Int(gameScore % 10))
         gamePointTenNode?.texture = self.getTimeTexture(time: Int((gameScore / 10) % 10))
@@ -558,7 +553,7 @@ class MyScene: SKScene {
 
 
     override func update(_ currentTime: TimeInterval) {
-        if clearType == ZoneClear {
+        if zone != nil {
             killZone()
         }
 
@@ -569,9 +564,7 @@ class MyScene: SKScene {
                   let bug = bugs[i]
                   if bug.calculateAccumulatedFrame().contains(currentBlade.position) {
                        doKill(targetBug: bug)
-                       // Blade can hit multiple bugs in one frame? Original breaks.
-                       // If multiple hits desired, remove the break.
-                       // break
+                       break
                   }
              }
         }
@@ -586,6 +579,7 @@ class MyScene: SKScene {
             hideKillZone()
         }
         UserDefaults.standard.set(clearType, forKey: "clearType")
+        UserDefaults.standard.synchronize()
     }
 
     func getClearType() -> Int {
@@ -601,51 +595,3 @@ class MyScene: SKScene {
     }
 }
 
-
-// Stubs for required external classes/helpers if not defined elsewhere
-// Remove these if the actual classes exist in your project.
-/*
-protocol GameDelegate: AnyObject {
-    func showGameOver()
-    func showRankView()
-    func restartGame()
-    func showGameMenu()
-}
-
-class TextureHelper {
-    static var bgTextures: [SKTexture] = []
-    static var cat1Textures: [SKTexture] = []
-    static var cat2Textures: [SKTexture] = []
-    static var cat3Textures: [SKTexture] = []
-    static var cat4Textures: [SKTexture] = []
-    static var cat5Textures: [SKTexture] = []
-    static var timeTextures: [SKTexture] = []
-
-    static func initTextures() {}
-    static func initCatTextures() {}
-    static func getTexturesWithSpriteSheetNamed(_ name: String, withinNode: SKNode?, sourceRect: CGRect, andRowNumberOfSprites: Int, andColNumberOfSprites: Int) -> [SKTexture]? { return [] }
-}
-
-class SKBlade: SKNode {
-     init(position: CGPoint, targetNode: SKNode, color: UIColor) { super.init() }
-     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-}
-
-class GameMenuViewController: UIViewController {
-     weak var gameDelegate: GameDelegate?
-     var scene: MyScene?
-     var gameType: Int = 0
-     var gameScore: Int64 = 0
-}
-
-class MyUtils {
-    static func preparePlayBackgroundMusic(_ filename: String) {}
-    static func backgroundMusicPlayerPlay() {}
-    static func backgroundMusicPlayerPause() {}
-    static func isBackgroundMusicPlayerPlaying() -> Bool { return false }
-}
-
-class MyADView: SKSpriteNode {
-     func startAd() {}
-}
-*/

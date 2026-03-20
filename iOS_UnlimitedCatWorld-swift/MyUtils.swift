@@ -11,8 +11,10 @@ import AVFoundation
 class MyUtils: NSObject {
 
     static var backgroundMusicPlayer: AVAudioPlayer?
+    private static var lastBackgroundMusicFilename: String?
 
     static func preparePlayBackgroundMusic(_ filename: String) {
+        lastBackgroundMusicFilename = filename
         guard let url = Bundle.main.url(forResource: filename, withExtension: nil) else {
             NSLog("Could not find file: %@", filename)
             return
@@ -52,10 +54,19 @@ class MyUtils: NSObject {
     }
 
     static func backgroundMusicPlayerPlay() {
+        if backgroundMusicPlayer == nil, let filename = lastBackgroundMusicFilename {
+            preparePlayBackgroundMusic(filename)
+        }
         backgroundMusicPlayer?.play()
     }
 
     static func isBackgroundMusicPlayerPlaying() -> Bool {
         return backgroundMusicPlayer?.isPlaying ?? false
+    }
+
+    static func ensureBackgroundMusicPlayer() {
+        if backgroundMusicPlayer == nil, let filename = lastBackgroundMusicFilename {
+            preparePlayBackgroundMusic(filename)
+        }
     }
 }

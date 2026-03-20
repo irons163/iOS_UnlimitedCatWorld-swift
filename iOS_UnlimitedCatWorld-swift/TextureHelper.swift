@@ -44,6 +44,12 @@ class TextureHelper {
         cat5Textures = (1...4).map { SKTexture(imageNamed: "cat05_\($0)") }
     }
 
+    static func initTextures() {
+        _ = hamsterInjure
+        _ = bgTexturesArray
+        _ = timeTexturesArray
+    }
+
     static func initHandTextures(sourceRect: CGRect, rows: Int, cols: Int) {
         hand1Textures = getTextures(from: "hand1", sourceRect: sourceRect, rows: rows, cols: cols)
         hand2Textures = getTextures(from: "hand2", sourceRect: sourceRect, rows: rows, cols: cols)

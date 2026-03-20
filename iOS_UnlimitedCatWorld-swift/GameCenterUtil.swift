@@ -22,15 +22,20 @@ class GameCenterUtil: NSObject, GKGameCenterControllerDelegate {
     }
     
     private func checkGameCenterAvailability() {
-        // Basic check: GKLocalPlayer should exist on supported OS
-        // Availability is primarily determined by authentication status.
-        isGameCenterAvailableState = true // Assume available initially
-        
+        let gcClassExists = NSClassFromString("GKLocalPlayer") != nil
+        let requiredVersion = "4.1"
+        let currentVersion = UIDevice.current.systemVersion
+        let osVersionSupported = currentVersion.compare(requiredVersion, options: .numeric) != .orderedAscending
+
+        isGameCenterAvailableState = gcClassExists && osVersionSupported
+
         if isGameCenterAvailableState {
-            NotificationCenter.default.addObserver(self,
-                                                   selector: #selector(authenticationChanged),
-                                                   name: .GKPlayerAuthenticationDidChangeNotificationName, // Modern notification name
-                                                   object: nil)
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(authenticationChanged),
+                name: .GKPlayerAuthenticationDidChangeNotificationName,
+                object: nil
+            )
         }
     }
     
@@ -44,7 +49,6 @@ class GameCenterUtil: NSObject, GKGameCenterControllerDelegate {
         return isGameCenterAvailableState
     }
     
-    // Added completion handler for feedback
     func authenticateLocalUser(presentingViewController: UIViewController, completion: ((Bool, Error?) -> Void)? = nil) {
         let localPlayer = GKLocalPlayer.local
         
@@ -53,9 +57,7 @@ class GameCenterUtil: NSObject, GKGameCenterControllerDelegate {
                 presentingViewController.present(vc, animated: true, completion: nil)
                 completion?(false, error) // Auth UI shown, not yet authenticated
             } else if localPlayer.isAuthenticated {
-                print("Game Center Authenticated")
                 self?.isGameCenterAvailableState = true
-                // Optional: Load default leaderboard ID after authentication
                 localPlayer.loadDefaultLeaderboardIdentifier { leaderboardIdentifier, error in
                     if let id = leaderboardIdentifier {
                         print("Default Leaderboard ID: \(id)")
@@ -63,14 +65,12 @@ class GameCenterUtil: NSObject, GKGameCenterControllerDelegate {
                         print("Error loading default leaderboard ID: \(err.localizedDescription)")
                     }
                 }
-                self?.submitAllSavedScores() // Attempt submitting saved scores on authentication
                 completion?(true, nil)
             } else if let err = error {
                 print("Game Center Authentication Failed: \(err.localizedDescription)")
                 self?.isGameCenterAvailableState = false
                 completion?(false, err)
             } else {
-                // Player chose not to sign in or cancelled
                 print("Game Center Authentication Cancelled or Failed (No Error)")
                 self?.isGameCenterAvailableState = false
                 completion?(false, nil)
@@ -200,29 +200,18 @@ class GameCenterUtil: NSObject, GKGameCenterControllerDelegate {
     }
     
     // Presenting Game Center UI
-    func showGameCenter(presentingViewController: UIViewController, leaderboardID: String? = nil, viewState: GKGameCenterViewControllerState = .leaderboards) {
+    func showGameCenter(presentingViewController: UIViewController) {
         guard GKLocalPlayer.local.isAuthenticated else {
-            print("Cannot show Game Center: Player not authenticated.")
-            // Optionally, attempt authentication first
-            authenticateLocalUser(presentingViewController: presentingViewController) { success, error in
-                if success {
-                    self.showGameCenter(presentingViewController: presentingViewController, leaderboardID: leaderboardID, viewState: viewState)
-                }
+            authenticateLocalUser(presentingViewController: presentingViewController) { [weak self] success, _ in
+                guard success else { return }
+                self?.showGameCenter(presentingViewController: presentingViewController)
             }
             return
         }
-        
-        let gameView: GKGameCenterViewController
-        
-        // Optionally specify a leaderboard
-        if let id = leaderboardID, viewState == .leaderboards {
-            gameView = GKGameCenterViewController(leaderboardID: id, playerScope: .global, timeScope: .allTime)
-            // gameView.leaderboardTimeScope = .allTime // Still valid if needed
-        } else {
-            gameView = GKGameCenterViewController(state: viewState)
-        }
+
+        let gameView = GKGameCenterViewController(leaderboardID: "com.xxxx.test", playerScope: .global, timeScope: .allTime)
         gameView.gameCenterDelegate = self
-        
+
         presentingViewController.present(gameView, animated: true, completion: nil)
     }
     

@@ -18,17 +18,23 @@ class SKBlade: SKNode {
         // Now set properties and add children
         self.position = position
 
-        let tip = SKSpriteNode(color: color, size: CGSize(width: 25, height: 25))
-        tip.zRotation = CGFloat.pi / 4.0 // More readable Swift way for 0.785398163
+        let bladePath = CGMutablePath()
+        bladePath.move(to: CGPoint(x: 0, y: -25))
+        bladePath.addLine(to: CGPoint(x: 0, y: 25))
+
+        let tip = SKShapeNode(path: bladePath)
+        tip.strokeColor = .clear
+        tip.lineWidth = 0
+        tip.glowWidth = 0
         tip.zPosition = 10
         addChild(tip)
 
-        let emitter = createEmitterNode(color: color) // Use helper func
-        emitter.targetNode = targetNode // Use the parameter name directly
+        let emitter = createEmitterNode(color: color)
+        emitter.targetNode = targetNode
         emitter.zPosition = 0
         tip.addChild(emitter)
 
-        setScale(0.5)
+
     }
 
     // Required initializer for decoding (often added by Xcode automatically, good practice to include)
@@ -38,7 +44,7 @@ class SKBlade: SKNode {
 
     // Method to set up physics
     func enablePhysics(categoryBitmask category: UInt32, contactTestBitmask contact: UInt32, collisionBitmask collision: UInt32) {
-        physicsBody = SKPhysicsBody(circleOfRadius: 16)
+        physicsBody = SKPhysicsBody(circleOfRadius: 8)
         physicsBody?.categoryBitMask = category
         physicsBody?.contactTestBitMask = contact
         physicsBody?.collisionBitMask = collision
@@ -51,35 +57,34 @@ class SKBlade: SKNode {
         let sparkTexture = SKTexture(imageNamed: "spark.png")
         emitterNode.particleTexture = sparkTexture
 
-        emitterNode.particleBirthRate = 3000
+        emitterNode.particleBirthRate = 220
 
-        emitterNode.particleLifetime = 0.2
-        emitterNode.particleLifetimeRange = 0
+        emitterNode.particleLifetime = 0.12
+        emitterNode.particleLifetimeRange = 0.04
 
-        // Use CGVector(dx: dy:) initializer in Swift
-        emitterNode.particlePositionRange = CGVector(dx: 0.0, dy: 0.0)
+        emitterNode.particlePositionRange = CGVector(dx: 2.0, dy: 2.0)
 
-        emitterNode.particleSpeed = 0.0
-        emitterNode.particleSpeedRange = 0.0
+        emitterNode.particleSpeed = 8.0
+        emitterNode.particleSpeedRange = 4.0
 
-        emitterNode.particleAlpha = 0.8
-        emitterNode.particleAlphaRange = 0.2
-        emitterNode.particleAlphaSpeed = -0.45
+        emitterNode.particleAlpha = 0.9
+        emitterNode.particleAlphaRange = 0.1
+        emitterNode.particleAlphaSpeed = -1.8
 
-        emitterNode.particleScale = 0.5
-        emitterNode.particleScaleRange = 0.001
-        emitterNode.particleScaleSpeed = -1
+        emitterNode.particleScale = 0.08
+        emitterNode.particleScaleRange = 0.03
+        emitterNode.particleScaleSpeed = -0.25
 
         emitterNode.particleRotation = 0
-        emitterNode.particleRotationRange = 0
-        emitterNode.particleRotationSpeed = 0
+        emitterNode.particleRotationRange = .pi
+        emitterNode.particleRotationSpeed = 1.5
 
         emitterNode.particleColorBlendFactor = 1
         emitterNode.particleColorBlendFactorRange = 0
         emitterNode.particleColorBlendFactorSpeed = 0
 
-        emitterNode.particleColor = color // Swift UIColor
-        emitterNode.particleBlendMode = .add // Swift enum syntax
+        emitterNode.particleColor = color
+        emitterNode.particleBlendMode = .add
 
         return emitterNode
     }
